@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Description: "AWS CloudFormation Template for creating an Amazon Oracle RDS DB instance"
+
+Parameters:
+  DBInstanceIdentifier:
+    Type: String
+    Default: primary-db
+  Engine:
+    Type: String
+    Default: oracle-se2
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.small
+  MasterUsername:
+    Type: String
+    Default: admin
+  MasterUserPassword:
+    Type: String
+    Default: admin123
+    MinLength: "8"
+    MaxLength: "41"
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only alphanumeric characters.
+    NoEcho: true
+  DBName:
+    Type: String
+    Default: ORCL
+    Description: The database name. If you do not specify a name, Amazon RDS will create a unique name.
+  AllocatedStorage:
+    Type: Number
+    Default: 100
+  StorageType:
+    Type: String
+    Default: gp2
+  DBSgName:
+    Type: String
+    Description: Enter the ID of the VPC security group for your RDS instance
+    Default: sg-0b52fa295xxxxxxxxx
+  DBSubnetGroupName:
+    Type: String
+    Default: pub-subnet-group
+  PublicAccess:
+    Description: Whether the DB instance is public.
+    Type: String
+    Default: true
+    AllowedValues:
+      - true
+      - false
+  LicenseModel:
+    Type: String
+    Default: bring-your-own-license
+
+Resources:
+  PrimaryDB:
+    Type: AWS::RDS::DBInstance
+    Properties: 
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier 
+      Engine: !Ref Engine
+      DBInstanceClass: !Ref DBInstanceClass
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: 
+        Ref: MasterUserPassword
+      DBName: !Ref DBName
+      AllocatedStorage: !Ref AllocatedStorage
+      StorageType: !Ref StorageType
+      DBSubnetGroupName: !Ref DBSubnetGroupName
+      PubliclyAccessible: !Ref PublicAccess
+      LicenseModel: !Ref LicenseModel
+      VPCSecurityGroups: 
+        - Ref: DBSgName
+
+Outputs:
+  PrimaryDBEndpoint:
+    Value: 
+      Fn::GetAtt: [PrimaryDB, Endpoint.Address]
